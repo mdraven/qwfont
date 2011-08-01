@@ -236,6 +236,9 @@ int main(int argc, char **argv) {
 		 	Block *b = &blocks[i];
 		 	char t[4];
 	
+			if(b->x1 == 0 && b->y1 == 0 && b->x2 == 0 && b->y2 == 0)
+				continue;
+			
 			if(bpp == 3) {
 				if(img->format->Rmask == 0x000000ff) {
 					t[0] = 0;

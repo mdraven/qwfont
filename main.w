@@ -347,6 +347,7 @@ if(argc == 4) {
 	 	Block *b = &blocks[i];
 	 	char t[4];
 
+		@<Skip empty block@>
 		@<Choose color of border@>
 		@<Draw border@>
 	}
@@ -356,7 +357,11 @@ if(argc == 4) {
 }
 @}
 
-@d Choose color of border @{@-
+@d Skip empty block @{@-
+if(b->x1 == 0 && b->y1 == 0 && b->x2 == 0 && b->y2 == 0)
+	continue;@}
+
+@d Choose color of border @{
 if(bpp == 3) {
 	if(img->format->Rmask == 0x000000ff) {
 		t[0] = 0;
