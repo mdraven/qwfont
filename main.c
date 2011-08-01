@@ -111,6 +111,8 @@ int main(int argc, char **argv) {
 	int color = 2;
 	int j;
 	Block blocks[NUM_BLOCKS];
+	int mblocks[NUM_BLOCKS];
+	int counter;
 	FILE *f;
 
 	if(argc < 3) {
@@ -177,8 +179,10 @@ int main(int argc, char **argv) {
 		blocks[i].y1 = 0;
 		blocks[i].x2 = 0;
 		blocks[i].y2 = 0;
+		mblocks[i] = 0;
 	}
 	
+	counter = 0;
 	
 	for(i = 0; i < w; i++)
 		for(j = 0; j < h; j++) {
@@ -190,7 +194,12 @@ int main(int argc, char **argv) {
 			}
 	
 			if(color > 1) {
-				Block *b = &blocks[color];
+				Block *b;
+	
+				color -= 2;
+	
+				b = &blocks[color];
+	
 				if(b->x1 == 0 && b->y1 == 0 && b->x2 == 0 && b->y2 == 0) {
 					b->x1 = i;
 					b->y1 = j;
@@ -206,6 +215,10 @@ int main(int argc, char **argv) {
 					b->y1 = j;
 				else if(b->y2 < j)
 					b->y2 = j;
+	
+				if(mblocks[color] == 0)
+					counter++;
+				mblocks[color] = 1;
 			}
 		}
 	
@@ -217,6 +230,11 @@ int main(int argc, char **argv) {
 	
 	if(fprintf(f, "%s\n", argv[1]) < 0) {
 		fprintf(stdout, "Cann't save image filename %s into %s\n", argv[1], argv[2]);
+		exit(1);
+	}
+	
+	if(fprintf(f, "%d\n", counter) < 0) {
+		fprintf(stdout, "Cann't save number of characters into %s\n", argv[2]);
 		exit(1);
 	}
 	

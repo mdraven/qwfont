@@ -188,33 +188,38 @@ void paint(int x, int y, int color, Block *out) {
 		b.y2 = b.y2 + 1 < h ? b.y2 + 1 : h;
 
 		flag = 0;
-		for(j = b.y1; j < b.y2; j++)
-			for(i = b.x1; i < b.x2; i++)
-				if(map[j*w + i] != 0 && map[j*w + i] != color)
-					if((i < w-1 && map[j*w + (i + 1)] == color) ||
-						(j < h-1 && map[(j + 1)*w + i] == color) ||
-						(i > 0 && map[j*w + (i - 1)] == color) ||
-						(j > 0 && map[(j - 1)*w + i] == color) ||
-						(i < w-1 && j > 0 && map[(j - 1)*w + (i + 1)] == color) ||
-						(i > 0 && j > 0 && map[(j - 1)*w + (i - 1)] == color) ||
-						(i < w-1 && j < h-1 && map[(j + 1)*w + (i + 1)] == color) ||
-						(i > 0 && j < h-1 && map[(j + 1)*w + (i - 1)] == color)) {
-						if(i < out->x1)
-							out->x1 = i;
-						else if(i > out->x2)
-							out->x2 = i;
-						if(j < out->y1)
-							out->y1 = j;
-						else if(j > out->y2)
-							out->y2 = j;
-						map[j*w + i] = color;
-						flag = 1;
-					}
+		@<Paint pixels@>
 		if(flag == 0)
 			break;
 	}
 }
 @}
+
+Закрасим точку, если соседняя имеет цвет color. Не забудем установить
+флаг flag, который подтвердит, то что итерация не прошла в холостую.
+@d Paint pixels @{@-
+for(j = b.y1; j < b.y2; j++)
+	for(i = b.x1; i < b.x2; i++)
+		if(map[j*w + i] != 0 && map[j*w + i] != color)
+			if((i < w-1 && map[j*w + (i + 1)] == color) ||
+				(j < h-1 && map[(j + 1)*w + i] == color) ||
+				(i > 0 && map[j*w + (i - 1)] == color) ||
+				(j > 0 && map[(j - 1)*w + i] == color) ||
+				(i < w-1 && j > 0 && map[(j - 1)*w + (i + 1)] == color) ||
+				(i > 0 && j > 0 && map[(j - 1)*w + (i - 1)] == color) ||
+				(i < w-1 && j < h-1 && map[(j + 1)*w + (i + 1)] == color) ||
+				(i > 0 && j < h-1 && map[(j + 1)*w + (i - 1)] == color)) {
+				if(i < out->x1)
+					out->x1 = i;
+				else if(i > out->x2)
+					out->x2 = i;
+				if(j < out->y1)
+					out->y1 = j;
+				else if(j > out->y2)
+					out->y2 = j;
+				map[j*w + i] = color;
+				flag = 1;
+			}@}
 
 Следующая функция принимает координаты прямоугольника, закрашивает
 найденые точки по вышеописанным правилам и возвращает координаты
@@ -271,9 +276,14 @@ for(j = 0; j < h; j++)
 @d Variables @{
 int j;@}
 
-
+Найдем на карте все закрашеные участки и координаты прямоугольников в
+которые они вписаны.
 @d Variables @{
-Block blocks[NUM_BLOCKS];@}
+Block blocks[NUM_BLOCKS];
+int mblocks[NUM_BLOCKS];
+int counter;@}
+mblocks - набор флагов, которые будет использоваться для подсчёта прямоугольников
+счётчиком counter.
 
 @d Save characters boxes @{
 for(i = 0; i < NUM_BLOCKS; i++) {
@@ -281,8 +291,10 @@ for(i = 0; i < NUM_BLOCKS; i++) {
 	blocks[i].y1 = 0;
 	blocks[i].x2 = 0;
 	blocks[i].y2 = 0;
+	mblocks[i] = 0;
 }
 
+counter = 0;
 @<Find corners of blocks@>
 
 f = fopen(argv[2], "wt");
@@ -293,6 +305,11 @@ if(f == NULL) {
 
 if(fprintf(f, "%s\n", argv[1]) < 0) {
 	fprintf(stdout, "Cann't save image filename %s into %s\n", argv[1], argv[2]);
+	exit(1);
+}
+
+if(fprintf(f, "%d\n", counter) < 0) {
+	fprintf(stdout, "Cann't save number of characters into %s\n", argv[2]);
 	exit(1);
 }
 
@@ -320,7 +337,12 @@ for(i = 0; i < w; i++)
 		}
 
 		if(color > 1) {
-			Block *b = &blocks[color];
+			Block *b;
+
+			color -= 2;
+
+			b = &blocks[color];
+
 			if(b->x1 == 0 && b->y1 == 0 && b->x2 == 0 && b->y2 == 0) {
 				b->x1 = i;
 				b->y1 = j;
@@ -336,9 +358,16 @@ for(i = 0; i < w; i++)
 				b->y1 = j;
 			else if(b->y2 < j)
 				b->y2 = j;
+
+			@<Mark mblocks and increase counter@>
 		}
 	}@}
+Вычитаем из color 2 так как 0 - фон, а 1 - нейральный цвет -- они нам не интересны.
 
+@d Mark mblocks and increase counter @{@-
+if(mblocks[color] == 0)
+	counter++;
+mblocks[color] = 1;@}
 
 @d Save BMP @{
 if(argc == 4) {
