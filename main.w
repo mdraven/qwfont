@@ -80,7 +80,7 @@ SDL_Surface *img;@}
 @d Load image @{
 img = IMG_Load(argv[1]);
 if(img == 0) {	
-	fprintf(stdout, "Cann't load file %s\n", argv[1]);
+	fprintf(stdout, "Can't load file %s\n", argv[1]);
 	exit(1);
 }
 @}
@@ -117,12 +117,12 @@ w = img->w;
 h = img->h;
 map = malloc(w * h * sizeof(int));
 if(map == NULL) {
-	fprintf(stdout, "Cann't allocate memory for map\n");
+	fprintf(stdout, "Can't allocate memory for map\n");
 	exit(1);
 }
 
 if(SDL_LockSurface(img) != 0) {
-	fprintf(stdout, "Cann't lock surface\n");
+	fprintf(stdout, "Can't lock surface\n");
 	exit(1);
 }
 
@@ -299,17 +299,17 @@ counter = 0;
 
 f = fopen(argv[2], "wt");
 if(f == NULL) {
-	fprintf(stdout, "Cann't open file %s to save info\n", argv[2]);
+	fprintf(stdout, "Can't open file %s to save info\n", argv[2]);
 	exit(1);
 }
 
 if(fprintf(f, "%s\n", argv[1]) < 0) {
-	fprintf(stdout, "Cann't save image filename %s into %s\n", argv[1], argv[2]);
+	fprintf(stdout, "Can't save image filename %s into %s\n", argv[1], argv[2]);
 	exit(1);
 }
 
 if(fprintf(f, "%d\n", counter) < 0) {
-	fprintf(stdout, "Cann't save number of characters into %s\n", argv[2]);
+	fprintf(stdout, "Can't save number of characters into %s\n", argv[2]);
 	exit(1);
 }
 
@@ -317,7 +317,7 @@ for(i = 0; i < NUM_BLOCKS; i++) {
 	Block *b = &blocks[i];
 	if(b->x1 != 0 || b->y1 != 0 || b->x2 != 0 || b->y2 != 0)
 		if(fprintf(f, "%d %d %d %d\n", b->x1, b->y1, b->x2, b->y2) < 0) {
-		 	fprintf(stdout, "Cann't save block\n");
+		 	fprintf(stdout, "Can't save block\n");
 		 	exit(1);
 		}
 }
